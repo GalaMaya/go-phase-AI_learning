@@ -2,21 +2,36 @@ package main
 
 import "fmt"
 
-// data contract
-type Game struct {
-	ID    int    `json:"id"`
-	Name  string `json:"name"`
-	Genre string `json:"genre"`
+type OrderItem struct {
+	Product string `json:"product"`
+	Price   int    `json:"price"`
+}
+type Order struct {
+	OrderID int         `json:"order_id"`
+	Items   []OrderItem `json:"items"`
+}
+
+type User struct {
+	Name  string   `json:"name"`
+	Roles []string `json:"roles"`
 }
 
 func main() {
 
-	game := Game{
-		ID:    1,
-		Name:  "Game Testing",
-		Genre: "Action",
+	order := Order{
+		OrderID: 123,
+		Items: []OrderItem{
+			{Product: "Laptop", Price: 1000},
+			{Product: "Mouse", Price: 50},
+		},
 	}
 
-	fmt.Print(game)
+	User := User{
+		Name:  "Galuh",
+		Roles: []string{"admin", "editor"},
+	}
+
+	fmt.Println(order)
+	fmt.Println(User)
 	fmt.Println("AI Backend Go Started")
 }
