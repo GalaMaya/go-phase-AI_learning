@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 )
 
 type OrderItem struct {
@@ -48,6 +49,34 @@ func ValidateOrder(o Order) error {
 			return fmt.Errorf("item[%d]: price must be greater than zero", i)
 		}
 	}
+
+	return nil
+}
+
+func ValidationCreateUser(u User) error {
+	if u.Name == "" {
+		return fmt.Errorf("name is required")
+	}
+
+	if len(u.Roles) == 0 {
+		return fmt.Errorf("at least one role is required")
+	}
+	return nil
+}
+
+func NormalizeUser(u *User) {
+	for i, role := range u.Roles {
+		u.Roles[i] = strings.TrimSpace(role)
+	}
+}
+
+func CreateUser(u *User) error {
+
+	if err := ValidationCreateUser(*u); err != nil {
+		return fmt.Errorf("Create User failed : %w", err)
+	}
+
+	NormalizeUser(u)
 
 	return nil
 }
