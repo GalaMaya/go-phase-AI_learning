@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type OrderItem struct {
 	Product string `json:"product"`
@@ -16,6 +18,40 @@ type User struct {
 	Roles []string `json:"roles"`
 }
 
+func ValidateUser(u User) error {
+	if u.Name == "" {
+		return fmt.Errorf("name is required")
+	}
+
+	if len(u.Roles) == 0 {
+		return fmt.Errorf("at least one role is required")
+	}
+
+	return nil
+}
+
+func ValidateOrder(o Order) error {
+	if o.OrderID == 0 {
+		return fmt.Errorf("order_id is required")
+	}
+
+	if len(o.Items) == 0 {
+		return fmt.Errorf("order must have at least one item")
+	}
+
+	for i, item := range o.Items {
+		if item.Product == "" {
+			return fmt.Errorf("item[%d]: product is required", i)
+		}
+
+		if item.Price <= 0 {
+			return fmt.Errorf("item[%d]: price must be greater than zero", i)
+		}
+	}
+
+	return nil
+}
+
 func main() {
 
 	order := Order{
@@ -26,12 +62,22 @@ func main() {
 		},
 	}
 
-	User := User{
+	user := User{
 		Name:  "Galuh",
 		Roles: []string{"admin", "editor"},
 	}
 
+	if err := ValidateUser(user); err != nil {
+		fmt.Println("User validation failed:", err)
+		return
+	}
+
+	if err := ValidateOrder(order); err != nil {
+		fmt.Println("Order validation failed:", err)
+		return
+	}
+
 	fmt.Println(order)
-	fmt.Println(User)
+	fmt.Println(user)
 	fmt.Println("AI Backend Go Started")
 }
