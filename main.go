@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 type OrderItem struct {
@@ -17,6 +18,12 @@ type Order struct {
 type User struct {
 	Name  string   `json:"name"`
 	Roles []string `json:"roles"`
+}
+
+// job
+type Job struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 func ValidateUser(u User) error {
@@ -81,6 +88,16 @@ func CreateUser(u *User) error {
 	return nil
 }
 
+// worker
+func worker(id int, jobs <-chan Job) {
+	for job := range jobs {
+		fmt.Printf("Worker %d processing job %d\n", id, job.ID)
+		// proses job di sini
+		time.Sleep(2 * time.Second)
+		fmt.Printf("Worker %d finished job %d\n", id, job.ID)
+	}
+}
+
 func main() {
 
 	order := Order{
@@ -105,6 +122,23 @@ func main() {
 		fmt.Println("Order validation failed:", err)
 		return
 	}
+
+	var jobQueue = make(chan Job, 5)
+
+	for i := 1; i <= 3; i++ {
+		go worker(i, jobQueue)
+	}
+
+	for j := 1; j <= 5; j++ {
+		jobQueue <- Job{
+			ID:   j,
+			Name: fmt.Sprintf("Job-%d", j),
+		}
+		fmt.Printf("Enqueued Job %d\n", j)
+	}
+
+	time.Sleep(15 * time.Second)
+	close(jobQueue)
 
 	fmt.Println(order)
 	fmt.Println(user)
